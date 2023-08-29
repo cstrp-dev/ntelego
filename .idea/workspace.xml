@@ -5,27 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13bed5d1-c012-4083-9545-7528bbd7735b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/TelegoBot.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DockerFile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/bot.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chat/chat.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/queue/queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/queue/queue.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq.pid" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq.pid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/DECISION_TAB.LOG" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/DECISION_TAB.LOG" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/LATEST.LOG" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/LATEST.LOG" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_durable_exchange.DCD" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_durable_exchange.DCD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_runtime_parameters.DCD" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_runtime_parameters.DCD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_serial" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_serial" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_user.DCD" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_user.DCD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_user_permission.DCD" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_user_permission.DCD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_vhost.DCD" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/rabbit_vhost.DCD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/schema.DAT" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq/mnesia/rabbit@rabbitmq/schema.DAT" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,27 +49,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/cstrp/Documents/Gpt_TgBot&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultGoTemplateProperty": "Go File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/home/cstrp/Documents/GoProjts/TelegoBot",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "settings.editor.selected.configurable": "configurable.group.appearance"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/client" />
       <recent name="$PROJECT_DIR$/client/telegram" />
@@ -158,7 +150,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="TeleGoBot/main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
