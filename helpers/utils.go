@@ -1,4 +1,4 @@
-package helper
+package helpers
 
 import (
 	"bufio"
@@ -28,14 +28,14 @@ func New() (*IHelper, error) {
 	}, nil
 }
 
-func (h *IHelper) GetData(key, input string) (string, error) {
-	safeInput, _ := json.Marshal(input)
+func (h *IHelper) GetData(key, prompt, text string) (string, error) {
+	safeInput, _ := json.Marshal(prompt)
+	safeText, _ := json.Marshal(text)
 	k, _ := base64.StdEncoding.DecodeString(key)
-	var data = strings.NewReader(fmt.Sprintf(`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":%v}],
-	"stream":true}`, string(safeInput)))
+	var data = strings.NewReader(fmt.Sprintf(`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":%v}, {"role":"user","content":%v}],
+	"stream":true}`, string(safeInput), string(safeText)))
 
 	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", data)
-
 	if err != nil {
 		return "", err
 	}
@@ -43,49 +43,31 @@ func (h *IHelper) GetData(key, input string) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", string(k))
 	resp, err := h.client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return "", err
 	}
-
-	type Response struct {
-		ID      string `json:"id"`
-		Choices []struct {
-			Delta struct {
-				Content string `json:"content"`
-			} `json:"delta"`
-		} `json:"choices"`
-	}
+	defer resp.Body.Close()
 
 	scanner := bufio.NewScanner(resp.Body)
 
-	for scanner.Scan() {
-		result := ""
-		line := scanner.Text()
-		obj := "{}"
+	var (
+		results []string
+		d       Response
+	)
 
-		if len(line) > 1 {
-			splitLine := strings.Split(line, "data: ")
-			if len(splitLine) > 1 {
-				obj = splitLine[1]
+	for scanner.Scan() {
+		lines := scanner.Text()
+		if strings.HasPrefix(lines, "data: ") {
+			obj := strings.TrimPrefix(lines, "data: ")
+			if err := json.Unmarshal([]byte(obj), &d); err != nil {
+				continue
+			}
+
+			if d.Choices != nil {
+				results = append(results, d.Choices[0].Delta.Content)
 			}
 		}
-
-		var d Response
-		if err := json.Unmarshal([]byte(obj), &d); err != nil {
-			continue
-		}
-
-		if d.Choices != nil {
-			result = d.Choices[0].Delta.Content
-		}
-
-		fmt.Print(result)
 	}
 
-	if err := scanner.Err(); err != nil {
-		return "", err
-	}
-
-	return "", nil
+	return strings.Join(results, ""), nil
 }

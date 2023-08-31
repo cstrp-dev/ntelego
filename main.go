@@ -2,7 +2,8 @@ package main
 
 import (
 	"TelegoBot/config"
-	"TelegoBot/helper"
+	"TelegoBot/helpers"
+	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
@@ -16,10 +17,11 @@ func init() {
 func main() {
 	cfg := config.New()
 
-	s, _ := helper.New()
-	result, err := s.GetData(cfg.OpenAiApiKey, "I luv u!!")
+	s, _ := helpers.New()
+	result, err := s.GetData(cfg.OpenAiApiKey, cfg.Prompt, "")
 	if err != nil {
 		logrus.Errorf("Failed to get data from API. %v", err)
 	}
-	logrus.Print(result)
+
+	fmt.Print(result)
 }

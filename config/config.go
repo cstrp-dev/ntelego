@@ -23,6 +23,7 @@ const (
 	NotificationInterval = "NOTIFICATION_INTERVAL"
 	Keywords             = "KEYWORDS"
 	OpenaiApiKey         = "OPENAI_API_KEY"
+	Prompt               = "PROMPT"
 )
 
 func New() Config {
@@ -32,6 +33,7 @@ func New() Config {
 			TelegramChannelID:    getInt(TelegramChannelID, DefaultInt),
 			DatabaseUrl:          getString(DatabaseUrl, DefaultStr),
 			OpenAiApiKey:         getString(OpenaiApiKey, DefaultStr),
+			Prompt:               getString(Prompt, DefaultStr),
 			FetchInterval:        getDuration(FetchInterval, time.Second*30),
 			NotificationInterval: getDuration(NotificationInterval, time.Second*30),
 			Keywords:             getStringSlice(Keywords, nil),

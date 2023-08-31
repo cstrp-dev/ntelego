@@ -9,6 +9,7 @@ type Config struct {
 	Keywords          []string
 
 	OpenAiApiKey         string
+	Prompt               string
 	FetchInterval        time.Duration
 	NotificationInterval time.Duration
 }
