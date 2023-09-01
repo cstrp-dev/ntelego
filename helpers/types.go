@@ -4,8 +4,8 @@ import (
 	tlsclient "github.com/bogdanfinn/tls-client"
 )
 
-type Data struct {
-	Version string `json:"version"`
+type Set struct {
+	data map[string]bool
 }
 
 type Response struct {

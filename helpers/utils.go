@@ -7,6 +7,7 @@ import (
 	"fmt"
 	http "github.com/bogdanfinn/fhttp"
 	tlsclient "github.com/bogdanfinn/tls-client"
+	"regexp"
 	"strings"
 )
 
@@ -70,4 +71,23 @@ func (h *IHelper) GetData(key, prompt, text string) (string, error) {
 	}
 
 	return strings.Join(results, ""), nil
+}
+
+func JSONParse[T any](s string) (T, error) {
+	var args T
+
+	if err := json.Unmarshal([]byte(s), &args); err != nil {
+		return *(new(T)), err
+	}
+
+	return args, nil
+}
+
+func Escape(s string) string {
+	var (
+		specChars = "-_\\*\\[\\]\\(\\)~`>#\\+=\\|{}\\.!"
+		replacer  = regexp.MustCompile("[" + specChars + "]")
+	)
+
+	return replacer.ReplaceAllString(s, "\\$0")
 }
