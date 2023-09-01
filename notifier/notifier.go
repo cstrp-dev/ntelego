@@ -10,29 +10,25 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirupsen/logrus"
 	"io"
-	"regexp"
 	"strings"
 	"time"
 )
 
 func New(
-	ap ArticleProvider,
-	s Summarizer,
-	api *tgbotapi.BotAPI,
-	k, p string,
-	id int64,
-	i time.Duration,
-	l time.Duration,
+	provider ArticleProvider,
+	summarizer Summarizer,
+	b *tgbotapi.BotAPI,
+	channelId int64,
+	interval time.Duration,
+	lookupTime time.Duration,
 ) *Notifier {
 	return &Notifier{
-		articles:   ap,
-		summarizer: s,
-		api:        api,
-		apiKey:     k,
-		prompt:     p,
-		chanId:     id,
-		interval:   i,
-		lookupTime: l,
+		articles:   provider,
+		summarizer: summarizer,
+		b:          b,
+		channelId:  channelId,
+		interval:   interval,
+		lookupTime: lookupTime,
 	}
 }
 
@@ -40,60 +36,59 @@ func (n *Notifier) Init(ctx context.Context) error {
 	ticker := time.NewTicker(n.interval)
 	defer ticker.Stop()
 
-	if err := n.GetAndSend(ctx); err != nil {
+	if err := n.selectArticle(ctx); err != nil {
 		return err
 	}
 
 	for {
 		select {
 		case <-ticker.C:
-			if err := n.GetAndSend(ctx); err != nil {
+			if err := n.selectArticle(ctx); err != nil {
 				return err
 			}
 		case <-ctx.Done():
 			return ctx.Err()
 		}
 	}
-
 }
 
-func (n *Notifier) GetAndSend(ctx context.Context) error {
-	articles, err := n.articles.GetUnpostedArticles(ctx, time.Now().Add(-n.lookupTime), 1)
+func (n *Notifier) selectArticle(ctx context.Context) error {
+	articles, err := n.articles.GetUnpostedArticles(ctx, time.Now().Add(-n.lookupTime), 4)
 	if err != nil {
 		return err
 	}
 
 	if len(articles) == 0 {
+		logrus.Info("No articles to notify")
 		return nil
 	}
 
 	article := articles[0]
-
-	summary, err := n.extract(n.apiKey, n.prompt, article)
+	summary, err := n.extract(article)
 	if err != nil {
-		logrus.Errorf("Error extracting summary: %v", err)
+		logrus.Errorf("Failed to extract summary. %v", err)
 	}
 
-	if err := n.sendArticle(article, summary); err != nil {
-		logrus.Errorf("Error sending article: %v", err)
+	if err := n.send(article, summary); err != nil {
+		logrus.Errorf("Failed to send summary. %v", err)
 		return err
 	}
 
 	return n.articles.MarkArticleAsPosted(ctx, article)
 }
 
-func (n *Notifier) extract(key, prompt string, article models.Article) (string, error) {
+func (n *Notifier) extract(article models.Article) (string, error) {
 	var reader io.Reader
 
 	if article.Summary != "" {
 		reader = strings.NewReader(article.Summary)
 	} else {
-		resp, err := http.Get(article.Url)
+		res, err := http.Get(article.Url)
 		if err != nil {
 			return "", err
 		}
-		defer resp.Body.Close()
-		reader = resp.Body
+
+		reader = res.Body
 	}
 
 	doc, err := readability.FromReader(reader, nil)
@@ -101,7 +96,7 @@ func (n *Notifier) extract(key, prompt string, article models.Article) (string, 
 		return "", err
 	}
 
-	summary, err := n.summarizer.GetData(key, prompt, cleanUp(doc.TextContent))
+	summary, err := n.summarizer.Summarize(helpers.CleanUpText(doc.TextContent))
 	if err != nil {
 		return "", err
 	}
@@ -109,24 +104,20 @@ func (n *Notifier) extract(key, prompt string, article models.Article) (string, 
 	return "\n\n" + summary, nil
 }
 
-func cleanUp(text string) string {
-	redundantNewLines := regexp.MustCompile(`\n{3,}`)
-	return redundantNewLines.ReplaceAllString(text, "\n")
-}
-
-func (n *Notifier) sendArticle(article models.Article, summary string) error {
-	const format = "*%s*%s\n\n%s"
-
+func (n *Notifier) send(article models.Article, summary string) error {
 	msg := tgbotapi.NewMessage(
-		n.chanId,
-		fmt.Sprintf(format,
+		n.channelId,
+		fmt.Sprintf(
+			"*%s*%s\n\n%s",
 			helpers.Escape(article.Title),
 			helpers.Escape(summary),
 			helpers.Escape(article.Url),
-		))
-	msg.ParseMode = tgbotapi.ModeMarkdownV2
+		),
+	)
 
-	if _, err := n.api.Send(msg); err != nil {
+	msg.ParseMode = "MarkdownV2"
+
+	if _, err := n.b.Send(msg); err != nil {
 		return err
 	}
 

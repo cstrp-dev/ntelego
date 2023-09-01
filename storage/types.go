@@ -24,12 +24,12 @@ type SourceDB struct {
 
 type ArticleDB struct {
 	Id             int64          `db:"a_id"`
+	SourceId       int64          `db:"s_id"`
+	SourcePriority int64          `db:"s_priority"`
 	Title          string         `db:"a_title"`
 	Url            string         `db:"a_url"`
 	Summary        sql.NullString `db:"a_summary"`
-	SourceId       int64          `db:"s_id"`
-	SourcePriority int64          `db:"s_priority"`
-	CreatedAt      time.Time      `db:"a_created_at"`
 	PublishedAt    time.Time      `db:"a_published_at"`
-	PostedAt       time.Time      `db:"a_posted_at"`
+	PostedAt       sql.NullTime   `db:"a_posted_at"`
+	CreatedAt      time.Time      `db:"a_created_at"`
 }

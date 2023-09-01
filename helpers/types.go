@@ -18,5 +18,6 @@ type Response struct {
 }
 
 type IHelper struct {
-	client tlsclient.HttpClient
+	client      tlsclient.HttpClient
+	key, prompt string
 }

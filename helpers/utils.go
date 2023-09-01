@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"TelegoBot/config"
 	"bufio"
 	"encoding/base64"
 	"encoding/json"
@@ -11,7 +12,7 @@ import (
 	"strings"
 )
 
-func New() (*IHelper, error) {
+func New(k, p string) (*IHelper, error) {
 	jar := tlsclient.NewCookieJar()
 	options := []tlsclient.HttpClientOption{
 		tlsclient.WithTimeoutSeconds(120),
@@ -26,13 +27,16 @@ func New() (*IHelper, error) {
 
 	return &IHelper{
 		client: client,
+		key:    k,
+		prompt: p,
 	}, nil
 }
 
-func (h *IHelper) GetData(key, prompt, text string) (string, error) {
-	safeInput, _ := json.Marshal(prompt)
+func (h *IHelper) Summarize(text string) (string, error) {
+	cfg := config.New()
+	safeInput, _ := json.Marshal(cfg.Prompt)
 	safeText, _ := json.Marshal(text)
-	k, _ := base64.StdEncoding.DecodeString(key)
+	k, _ := base64.StdEncoding.DecodeString(cfg.OpenAiApiKey)
 	var data = strings.NewReader(fmt.Sprintf(`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":%v}, {"role":"user","content":%v}],
 	"stream":true}`, string(safeInput), string(safeText)))
 
@@ -81,6 +85,11 @@ func JSONParse[T any](s string) (T, error) {
 	}
 
 	return args, nil
+}
+
+func CleanUpText(t string) string {
+	replacer := regexp.MustCompile("\n{3,}")
+	return replacer.ReplaceAllString(t, "\n")
 }
 
 func Escape(s string) string {
