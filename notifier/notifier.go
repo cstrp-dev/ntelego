@@ -37,6 +37,7 @@ func (n *Notifier) Init(ctx context.Context) error {
 	defer ticker.Stop()
 
 	if err := n.selectArticle(ctx); err != nil {
+		logrus.Errorf("Error getting and sending articles: %v", err)
 		return err
 	}
 
@@ -44,6 +45,7 @@ func (n *Notifier) Init(ctx context.Context) error {
 		select {
 		case <-ticker.C:
 			if err := n.selectArticle(ctx); err != nil {
+				logrus.Errorf("Error getting and sending articles: %v", err)
 				return err
 			}
 		case <-ctx.Done():
@@ -53,17 +55,20 @@ func (n *Notifier) Init(ctx context.Context) error {
 }
 
 func (n *Notifier) selectArticle(ctx context.Context) error {
-	articles, err := n.articles.GetUnpostedArticles(ctx, time.Now().Add(-n.lookupTime), 4)
+	format := time.Now().Add(-n.lookupTime).UTC().Format("2006-01-02 15:04:05")
+	parsed, _ := time.Parse(time.RFC3339, format)
+	articles, err := n.articles.GetUnpostedArticles(ctx, parsed, 1)
 	if err != nil {
 		return err
 	}
 
 	if len(articles) == 0 {
-		logrus.Info("No articles to notify")
+		logrus.Infof("%v articles to send.", len(articles))
 		return nil
 	}
 
 	article := articles[0]
+
 	summary, err := n.extract(article)
 	if err != nil {
 		logrus.Errorf("Failed to extract summary. %v", err)

@@ -51,8 +51,7 @@ func main() {
 		fetcher        = fetcher.New(articleStorage, sourceStorage, cfg.FetchInterval, cfg.Keywords)
 		notifier       = notifier.New(
 			articleStorage,
-			h,
-			api,
+			h, api,
 			cfg.TelegramChannelID,
 			cfg.NotificationInterval,
 			2*cfg.FetchInterval,

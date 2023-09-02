@@ -28,7 +28,3 @@ func GetSource(p SourceProvider) telegram.Callback {
 		return nil
 	}
 }
-
-//https://dev.to/feed/tag/linux
-//https://hashnode.com/n/linux/rss
-//https://habr.com/ru/rss/hubs/linux/articles/all/
