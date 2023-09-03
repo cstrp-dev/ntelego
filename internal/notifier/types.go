@@ -1,7 +1,7 @@
 package notifier
 
 import (
-	"TelegoBot/models"
+	"TelegoBot/internal/models"
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"time"

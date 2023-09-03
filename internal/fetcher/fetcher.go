@@ -1,9 +1,9 @@
 package fetcher
 
 import (
-	"TelegoBot/helpers"
-	"TelegoBot/models"
-	src "TelegoBot/source"
+	"TelegoBot/internal/helpers"
+	models2 "TelegoBot/internal/models"
+	src "TelegoBot/internal/source"
 	"context"
 	"github.com/sirupsen/logrus"
 	"strings"
@@ -54,7 +54,7 @@ func (f *Fetcher) Init(ctx context.Context) error {
 	return nil
 }
 
-func (f *Fetcher) processItems(ctx context.Context, source Source, items []models.Item) error {
+func (f *Fetcher) processItems(ctx context.Context, source Source, items []models2.Item) error {
 	for _, item := range items {
 		item.Date = item.Date.UTC()
 
@@ -63,7 +63,7 @@ func (f *Fetcher) processItems(ctx context.Context, source Source, items []model
 			continue
 		}
 
-		if err := f.articles.SaveArticle(ctx, models.Article{
+		if err := f.articles.SaveArticle(ctx, models2.Article{
 			SourceId:    source.Id(),
 			Title:       item.Title,
 			Url:         item.Url,
@@ -77,7 +77,7 @@ func (f *Fetcher) processItems(ctx context.Context, source Source, items []model
 	return nil
 }
 
-func (f *Fetcher) shouldSkip(item models.Item) bool {
+func (f *Fetcher) shouldSkip(item models2.Item) bool {
 	set := helpers.NewSet(item.Categories)
 
 	for _, key := range f.keywords {

@@ -1,9 +1,9 @@
 package telegram
 
 import (
-	"TelegoBot/helpers"
-	"TelegoBot/models"
-	"TelegoBot/telegram"
+	"TelegoBot/internal/helpers"
+	"TelegoBot/internal/models"
+	"TelegoBot/internal/telegram"
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"

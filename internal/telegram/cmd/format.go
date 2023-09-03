@@ -1,8 +1,8 @@
 package telegram
 
 import (
-	"TelegoBot/helpers"
-	"TelegoBot/models"
+	"TelegoBot/internal/helpers"
+	"TelegoBot/internal/models"
 	"fmt"
 )
 

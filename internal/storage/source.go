@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"TelegoBot/models"
+	"TelegoBot/internal/models"
 	"context"
 	"github.com/jmoiron/sqlx"
 	"github.com/samber/lo"

@@ -1,14 +1,14 @@
 package source
 
 import (
-	"TelegoBot/models"
+	models2 "TelegoBot/internal/models"
 	"context"
 	"github.com/SlyMarbo/rss"
 	"github.com/samber/lo"
 	"strings"
 )
 
-func NewRSSource(m models.Source) RSSource {
+func NewRSSource(m models2.Source) RSSource {
 	return RSSource{
 		SourceId:   m.Id,
 		SourceName: m.Name,
@@ -16,14 +16,14 @@ func NewRSSource(m models.Source) RSSource {
 	}
 }
 
-func (s RSSource) Fetch(ctx context.Context) ([]models.Item, error) {
+func (s RSSource) Fetch(ctx context.Context) ([]models2.Item, error) {
 	feed, err := s.load(ctx, s.Url)
 	if err != nil {
 		return nil, err
 	}
 
-	return lo.Map(feed.Items, func(item *rss.Item, _ int) models.Item {
-			return models.Item{
+	return lo.Map(feed.Items, func(item *rss.Item, _ int) models2.Item {
+			return models2.Item{
 				Title:      item.Title,
 				Url:        item.Link,
 				Date:       item.Date,

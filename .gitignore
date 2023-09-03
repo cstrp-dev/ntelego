@@ -163,4 +163,4 @@ cookies/
 !/docker-compose.yml
 !Dockerfile
 !.golangci.yml
-!/storage/migrations/
+!/internal/storage/migrations/

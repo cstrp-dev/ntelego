@@ -1,14 +1,14 @@
 package main
 
 import (
-	"TelegoBot/config"
-	"TelegoBot/fetcher"
-	"TelegoBot/helpers"
-	"TelegoBot/notifier"
-	"TelegoBot/storage"
-	"TelegoBot/telegram"
-	tg "TelegoBot/telegram/cmd"
-	"TelegoBot/telegram/middleware"
+	"TelegoBot/cmd/config"
+	"TelegoBot/internal/fetcher"
+	"TelegoBot/internal/helpers"
+	"TelegoBot/internal/notifier"
+	storage2 "TelegoBot/internal/storage"
+	telegram3 "TelegoBot/internal/telegram"
+	telegram2 "TelegoBot/internal/telegram/cmd"
+	"TelegoBot/internal/telegram/middleware"
 	"context"
 	"errors"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -46,8 +46,8 @@ func main() {
 	}
 
 	var (
-		articleStorage = storage.NewArticleStorage(db)
-		sourceStorage  = storage.NewSourceStorage(db)
+		articleStorage = storage2.NewArticleStorage(db)
+		sourceStorage  = storage2.NewSourceStorage(db)
 		fetcher        = fetcher.New(articleStorage, sourceStorage, cfg.FetchInterval, cfg.Keywords)
 		notifier       = notifier.New(
 			articleStorage,
@@ -58,7 +58,7 @@ func main() {
 		)
 	)
 
-	newBot := telegram.New(api)
+	newBot := telegram3.New(api)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
@@ -91,10 +91,10 @@ func main() {
 
 }
 
-func setMyCommands(b *telegram.Bot, storage *storage.SourceStorage, channelId int64) {
-	b.RegistryCmd("add", middleware.Root(channelId, tg.AddSource(storage)))
-	b.RegistryCmd("get", middleware.Root(channelId, tg.GetSource(storage)))
-	b.RegistryCmd("set", middleware.Root(channelId, tg.SetPriority(storage)))
-	b.RegistryCmd("ls", middleware.Root(channelId, tg.SourceLs(storage)))
-	b.RegistryCmd("rm", middleware.Root(channelId, tg.DeleteSource(storage)))
+func setMyCommands(b *telegram3.Bot, storage *storage2.SourceStorage, channelId int64) {
+	b.RegistryCmd("add", middleware.Root(channelId, telegram2.AddSource(storage)))
+	b.RegistryCmd("get", middleware.Root(channelId, telegram2.GetSource(storage)))
+	b.RegistryCmd("set", middleware.Root(channelId, telegram2.SetPriority(storage)))
+	b.RegistryCmd("ls", middleware.Root(channelId, telegram2.SourceLs(storage)))
+	b.RegistryCmd("rm", middleware.Root(channelId, telegram2.DeleteSource(storage)))
 }

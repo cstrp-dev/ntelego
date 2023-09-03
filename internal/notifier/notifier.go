@@ -1,8 +1,8 @@
 package notifier
 
 import (
-	"TelegoBot/helpers"
-	"TelegoBot/models"
+	"TelegoBot/internal/helpers"
+	"TelegoBot/internal/models"
 	"context"
 	"fmt"
 	http "github.com/bogdanfinn/fhttp"

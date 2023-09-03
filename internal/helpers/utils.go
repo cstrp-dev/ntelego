@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"TelegoBot/config"
+	"TelegoBot/cmd/config"
 	"bufio"
 	"encoding/base64"
 	"encoding/json"

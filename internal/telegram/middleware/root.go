@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"TelegoBot/telegram"
+	"TelegoBot/internal/telegram"
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )

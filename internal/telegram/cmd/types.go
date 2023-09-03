@@ -1,7 +1,7 @@
 package telegram
 
 import (
-	"TelegoBot/models"
+	"TelegoBot/internal/models"
 	"context"
 )
 
