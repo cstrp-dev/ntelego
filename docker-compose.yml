@@ -6,6 +6,8 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      PGDATA: /var/lib/postgresql/data/
     ports:
       - '5432:5432'
     volumes:
@@ -19,14 +21,16 @@ services:
     ports:
       - '8081:8081'
 
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    restart: on-failure
-#    ports:
-#      - '8080:8080'
-#    depends_on: [ database ]
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
+    depends_on: [ database ]
 
 volumes:
   database:

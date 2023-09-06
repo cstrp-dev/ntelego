@@ -1,15 +1,19 @@
-FROM golang:latest as builder
+FROM golang:1.21-alpine as builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
 
-RUN go mod download
-
 COPY . .
 
-RUN go build -o /app/telego-bot ./
+RUN go mod download
+
+COPY internal ./internal
+
+COPY cmd ./cmd
+
+RUN go build -o /app/telego-bot ./cmd
 
 EXPOSE 8080
 
-CMD ["telego-bot"]
+CMD ["/app/telego-bot"]
