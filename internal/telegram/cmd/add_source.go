@@ -6,6 +6,7 @@ import (
 	"TelegoBot/internal/telegram"
 	"context"
 	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -17,9 +18,24 @@ func AddSource(s SourceStorage) telegram.Callback {
 	}
 
 	return func(ctx context.Context, b *tgbotapi.BotAPI, u tgbotapi.Update) error {
-		args, err := helpers.JSONParse[Args](u.Message.CommandArguments())
+		argsStr := u.Message.CommandArguments()
+		if argsStr == "" {
+			msg := tgbotapi.NewMessage(
+				u.Message.Chat.ID,
+				"❌ Error: Please provide arguments in JSON format.\nExample: `/add {\"name\":\"TechCrunch\",\"url\":\"https://techcrunch.com/feed/\",\"priority\":1}`",
+			)
+			b.Send(msg)
+			return nil
+		}
+
+		args, err := helpers.JSONParse[Args](argsStr)
 		if err != nil {
-			return err
+			msg := tgbotapi.NewMessage(
+				u.Message.Chat.ID,
+				fmt.Sprintf("❌ Error parsing arguments: %v\nPlease use valid JSON format.\nExample: `/add {\"name\":\"TechCrunch\",\"url\":\"https://techcrunch.com/feed/\",\"priority\":1}`", err),
+			)
+			b.Send(msg)
+			return nil
 		}
 
 		source := models.Source{
@@ -30,15 +46,18 @@ func AddSource(s SourceStorage) telegram.Callback {
 
 		id, err := s.AddSource(ctx, source)
 		if err != nil {
-			return err
+			msg := tgbotapi.NewMessage(
+				u.Message.Chat.ID,
+				fmt.Sprintf("❌ Error adding source: %v", err),
+			)
+			b.Send(msg)
+			return nil
 		}
 
 		msg := tgbotapi.NewMessage(
 			u.Message.Chat.ID,
-			fmt.Sprintf("Source has been added successfully. ID: %d", id),
+			fmt.Sprintf("✅ Source has been added successfully. ID: %d", id),
 		)
-
-		msg.ParseMode = tgbotapi.ModeMarkdownV2
 
 		if _, err := b.Send(msg); err != nil {
 			return err

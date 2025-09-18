@@ -3,13 +3,14 @@ package helpers
 import (
 	"TelegoBot/cmd/config"
 	"bufio"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	http "github.com/bogdanfinn/fhttp"
-	tlsclient "github.com/bogdanfinn/tls-client"
 	"regexp"
 	"strings"
+
+	http "github.com/bogdanfinn/fhttp"
+	tlsclient "github.com/bogdanfinn/tls-client"
+	"github.com/sirupsen/logrus"
 )
 
 func New(k, p string) (*IHelper, error) {
@@ -36,7 +37,9 @@ func (h *IHelper) Summarize(text string) (string, error) {
 	cfg := config.New()
 	safeInput, _ := json.Marshal(cfg.Prompt)
 	safeText, _ := json.Marshal(text)
-	k, _ := base64.StdEncoding.DecodeString(cfg.OpenAiApiKey)
+
+	logrus.Infof("AI Summarization - Input text length: %d chars, Prompt: %s", len(text), cfg.Prompt[:100]+"...")
+
 	var data = strings.NewReader(fmt.Sprintf(`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":%v}, {"role":"user","content":%v}],
 	"stream":true}`, string(safeInput), string(safeText)))
 
@@ -46,12 +49,17 @@ func (h *IHelper) Summarize(text string) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", string(k))
+	req.Header.Set("Authorization", string("Bearer "+cfg.OpenAiApiKey))
 	resp, err := h.client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		logrus.Errorf("OpenAI API error - Status: %d", resp.StatusCode)
+		return "", fmt.Errorf("OpenAI API returned status %d", resp.StatusCode)
+	}
 
 	scanner := bufio.NewScanner(resp.Body)
 
@@ -74,7 +82,14 @@ func (h *IHelper) Summarize(text string) (string, error) {
 		}
 	}
 
-	return strings.Join(results, ""), nil
+	finalSummary := strings.Join(results, "")
+	logrus.Infof("AI Summarization completed - Output length: %d chars", len(finalSummary))
+
+	if len(finalSummary) < 50 {
+		logrus.Warnf("AI summary too short, possible issue with API response")
+	}
+
+	return finalSummary, nil
 }
 
 func JSONParse[T any](s string) (T, error) {

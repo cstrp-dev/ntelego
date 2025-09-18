@@ -2,8 +2,9 @@ package storage
 
 import (
 	"database/sql"
-	"github.com/jmoiron/sqlx"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type ArticleStorage struct {
@@ -11,6 +12,10 @@ type ArticleStorage struct {
 }
 
 type SourceStorage struct {
+	db *sqlx.DB
+}
+
+type UserStorage struct {
 	db *sqlx.DB
 }
 
@@ -32,4 +37,9 @@ type ArticleDB struct {
 	PublishedAt    time.Time      `db:"a_published_at"`
 	PostedAt       sql.NullTime   `db:"a_posted_at"`
 	CreatedAt      time.Time      `db:"a_created_at"`
+}
+
+type UserDB struct {
+	ChatId    int64     `db:"chat_id"`
+	CreatedAt time.Time `db:"created_at"`
 }

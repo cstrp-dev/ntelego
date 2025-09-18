@@ -5,30 +5,29 @@ import (
 	"TelegoBot/internal/models"
 	"context"
 	"fmt"
+	"time"
+
 	http "github.com/bogdanfinn/fhttp"
 	"github.com/go-shiori/go-readability"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirupsen/logrus"
-	"io"
-	"strings"
-	"time"
 )
 
 func New(
 	provider ArticleProvider,
 	summarizer Summarizer,
 	b *tgbotapi.BotAPI,
-	channelId int64,
+	userStorage UserStorage,
 	interval time.Duration,
 	lookupTime time.Duration,
 ) *Notifier {
 	return &Notifier{
-		articles:   provider,
-		summarizer: summarizer,
-		b:          b,
-		channelId:  channelId,
-		interval:   interval,
-		lookupTime: lookupTime,
+		articles:    provider,
+		summarizer:  summarizer,
+		b:           b,
+		userStorage: userStorage,
+		interval:    interval,
+		lookupTime:  lookupTime,
 	}
 }
 
@@ -83,47 +82,74 @@ func (n *Notifier) selectArticle(ctx context.Context) error {
 }
 
 func (n *Notifier) extract(article models.Article) (string, error) {
-	var reader io.Reader
-
-	if article.Summary != "" {
-		reader = strings.NewReader(article.Summary)
-	} else {
-		res, err := http.Get(article.Url)
-		if err != nil {
-			return "", err
+	res, err := http.Get(article.Url)
+	if err != nil {
+		if article.Summary != "" {
+			logrus.Warnf("Failed to fetch article content from URL, using RSS summary: %v", err)
+			return n.summarizer.Summarize(helpers.CleanUpText(article.Summary))
 		}
+		return "", fmt.Errorf("failed to fetch article content: %v", err)
+	}
+	defer res.Body.Close()
 
-		reader = res.Body
+	if res.StatusCode != 200 {
+		if article.Summary != "" {
+			logrus.Warnf("Article URL returned status %d, using RSS summary", res.StatusCode)
+			return n.summarizer.Summarize(helpers.CleanUpText(article.Summary))
+		}
+		return "", fmt.Errorf("article URL returned status %d", res.StatusCode)
 	}
 
-	doc, err := readability.FromReader(reader, nil)
+	doc, err := readability.FromReader(res.Body, nil)
 	if err != nil {
-		return "", err
+		if article.Summary != "" {
+			logrus.Warnf("Failed to extract content with readability, using RSS summary: %v", err)
+			return n.summarizer.Summarize(helpers.CleanUpText(article.Summary))
+		}
+		return "", fmt.Errorf("failed to extract article content: %v", err)
 	}
 
-	summary, err := n.summarizer.Summarize(helpers.CleanUpText(doc.TextContent))
-	if err != nil {
-		return "", err
+	content := helpers.CleanUpText(doc.TextContent)
+	if len(content) < 100 {
+		if article.Summary != "" && len(article.Summary) > len(content) {
+			logrus.Warnf("Extracted content too short (%d chars), using RSS summary", len(content))
+			return n.summarizer.Summarize(helpers.CleanUpText(article.Summary))
+		}
 	}
+
+	summary, err := n.summarizer.Summarize(content)
+	if err != nil {
+		return "", fmt.Errorf("failed to summarize article: %v", err)
+	}
+
+	logrus.Infof("Article processed - Title: %s, Content length: %d chars, Summary length: %d chars",
+		article.Title, len(content), len(summary))
 
 	return "\n\n" + summary, nil
 }
 
 func (n *Notifier) send(article models.Article, summary string) error {
-	msg := tgbotapi.NewMessage(
-		n.channelId,
-		fmt.Sprintf(
-			"*%s*%s\n\n%s",
-			helpers.Escape(article.Title),
-			helpers.Escape(summary),
-			helpers.Escape(article.Url),
-		),
+	users, err := n.userStorage.GetAllUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	messageText := fmt.Sprintf(
+		"📰 %s\n\n%s\n\n🔗 %s",
+		article.Title,
+		summary,
+		article.Url,
 	)
 
-	msg.ParseMode = "MarkdownV2"
+	for _, chatId := range users {
+		msg := tgbotapi.NewMessage(
+			chatId,
+			messageText,
+		)
 
-	if _, err := n.b.Send(msg); err != nil {
-		return err
+		if _, err := n.b.Send(msg); err != nil {
+			logrus.Errorf("Failed to send message to chat %d: %v", chatId, err)
+		}
 	}
 
 	return nil

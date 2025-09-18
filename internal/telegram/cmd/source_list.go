@@ -5,10 +5,11 @@ import (
 	"TelegoBot/internal/telegram"
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/samber/lo"
 	"sort"
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/samber/lo"
 )
 
 func SourceLs(l SourceList) telegram.Callback {
@@ -28,12 +29,11 @@ func SourceLs(l SourceList) telegram.Callback {
 		msg := tgbotapi.NewMessage(
 			u.Message.Chat.ID,
 			fmt.Sprintf(
-				"List of sources \\(%d\\):\n\n%s",
+				"List of sources (%d):\n\n%s",
 				len(s),
 				strings.Join(info, "\n\n"),
 			),
 		)
-		msg.ParseMode = tgbotapi.ModeMarkdownV2
 
 		if _, err := b.Send(msg); err != nil {
 			return err

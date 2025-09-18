@@ -1,17 +1,16 @@
 package telegram
 
 import (
-	"TelegoBot/internal/helpers"
 	"TelegoBot/internal/models"
 	"fmt"
 )
 
 func Format(s models.Source) string {
 	return fmt.Sprintf(
-		"🛠 *%s*\nID: `%d`\nFeed url: %s\nPriority: %d",
-		helpers.Escape(s.Name),
+		"🛠 %s\nID: %d\nFeed URL: %s\nPriority: %d",
+		s.Name,
 		s.Id,
-		helpers.Escape(s.FeedUrl),
+		s.FeedUrl,
 		s.Priority,
 	)
 }

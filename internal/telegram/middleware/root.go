@@ -1,36 +1,21 @@
 package middleware
 
 import (
+	"TelegoBot/internal/storage"
 	"TelegoBot/internal/telegram"
 	"context"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sirupsen/logrus"
 )
 
-func Root(channelId int64, next telegram.Callback) telegram.Callback {
+func Root(userStorage *storage.UserStorage, next telegram.Callback) telegram.Callback {
 	return func(ctx context.Context, b *tgbotapi.BotAPI, u tgbotapi.Update) error {
-		amdns, err := b.GetChatAdministrators(
-			tgbotapi.ChatAdministratorsConfig{
-				ChatConfig: tgbotapi.ChatConfig{
-					ChatID: channelId,
-				},
-			},
-		)
-		if err != nil {
-			return err
+		chatId := u.FromChat().ID
+		if err := userStorage.AddUser(ctx, chatId); err != nil {
+			logrus.Errorf("Failed to add user %d: %v", chatId, err)
 		}
 
-		for _, adm := range amdns {
-			if adm.User.ID == u.SentFrom().ID {
-				return next(ctx, b, u)
-			}
-		}
-
-		msg := tgbotapi.NewMessage(u.FromChat().ID, "Access denied!")
-
-		if _, err := b.Send(msg); err != nil {
-			return err
-		}
-
-		return nil
+		return next(ctx, b, u)
 	}
 }

@@ -11,14 +11,15 @@ import (
 	"TelegoBot/internal/telegram/middleware"
 	"context"
 	"errors"
+	"os"
+	"os/signal"
+	"syscall"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func init() {
@@ -38,6 +39,7 @@ func main() {
 	db, err := sqlx.Connect("postgres", cfg.DatabaseUrl)
 	if err != nil {
 		logrus.Errorf("Failed to connect to database. %v", err)
+		return
 	}
 
 	h, err := helpers.New(cfg.OpenAiApiKey, cfg.Prompt)
@@ -48,11 +50,12 @@ func main() {
 	var (
 		articleStorage = storage2.NewArticleStorage(db)
 		sourceStorage  = storage2.NewSourceStorage(db)
+		userStorage    = storage2.NewUserStorage(db)
 		fetcher        = fetcher.New(articleStorage, sourceStorage, cfg.FetchInterval, cfg.Keywords)
 		notifier       = notifier.New(
 			articleStorage,
 			h, api,
-			cfg.TelegramChannelID,
+			userStorage,
 			cfg.NotificationInterval,
 			2*cfg.FetchInterval,
 		)
@@ -83,7 +86,7 @@ func main() {
 		}
 	}(ctx)
 
-	setMyCommands(newBot, sourceStorage, cfg.TelegramChannelID)
+	setMyCommands(newBot, sourceStorage, userStorage)
 	if err := newBot.Init(ctx); err != nil {
 		logrus.Errorf("Failed to init bot. %v", err)
 		return
@@ -91,10 +94,10 @@ func main() {
 
 }
 
-func setMyCommands(b *telegram3.Bot, storage *storage2.SourceStorage, channelId int64) {
-	b.RegistryCmd("add", middleware.Root(channelId, telegram2.AddSource(storage)))
-	b.RegistryCmd("get", middleware.Root(channelId, telegram2.GetSource(storage)))
-	b.RegistryCmd("set", middleware.Root(channelId, telegram2.SetPriority(storage)))
-	b.RegistryCmd("ls", middleware.Root(channelId, telegram2.SourceLs(storage)))
-	b.RegistryCmd("rm", middleware.Root(channelId, telegram2.DeleteSource(storage)))
+func setMyCommands(b *telegram3.Bot, storage *storage2.SourceStorage, userStorage *storage2.UserStorage) {
+	b.RegistryCmd("add", middleware.Root(userStorage, telegram2.AddSource(storage)))
+	b.RegistryCmd("get", middleware.Root(userStorage, telegram2.GetSource(storage)))
+	b.RegistryCmd("set", middleware.Root(userStorage, telegram2.SetPriority(storage)))
+	b.RegistryCmd("ls", middleware.Root(userStorage, telegram2.SourceLs(storage)))
+	b.RegistryCmd("rm", middleware.Root(userStorage, telegram2.DeleteSource(storage)))
 }

@@ -16,8 +16,7 @@ var (
 const (
 	DefaultStr           = ""
 	DefaultInt           = 0
-	TelegramApiKey       = "TELEGRAM_API_KEY"
-	TelegramChannelID    = "TELEGRAM_CHANNEL_ID"
+	TelegramApiKey       = "TELEGRAM_BOT_TOKEN"
 	DatabaseUrl          = "DATABASE_URL"
 	FetchInterval        = "FETCH_INTERVAL"
 	NotificationInterval = "NOTIFICATION_INTERVAL"
@@ -30,7 +29,6 @@ func New() Config {
 	once.Do(func() {
 		cfg = Config{
 			TelegramApiKey:       getString(TelegramApiKey, DefaultStr),
-			TelegramChannelID:    getInt(TelegramChannelID, DefaultInt),
 			DatabaseUrl:          getString(DatabaseUrl, DefaultStr),
 			OpenAiApiKey:         getString(OpenaiApiKey, DefaultStr),
 			Prompt:               getString(Prompt, DefaultStr),
